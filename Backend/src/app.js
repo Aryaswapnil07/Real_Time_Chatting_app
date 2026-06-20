@@ -1,18 +1,48 @@
-import express from "express"
-import cors from "cors"
-import cookieParser from "cookie-parser"
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
 
-const app = express() //creates an express application
+// Route Imports
+import userRouter from "./routes/user.routes.js";
+import friendRouter from "./routes/friend.routes.js";
+import conversationRouter from "./routes/conversation.routes.js";
+import messageRouter from "./routes/message.routes.js";
+import notificationRouter from "./routes/notification.routes.js";
 
-app.use(cors({
+const app = express();
+
+// CORS Configuration
+app.use(
+  cors({
     origin: process.env.CORS_ORIGIN,
-    credentials: true
-}))
+    credentials: true,
+  })
+);
 
-app.use(express.json({limit: "16kb"}))
-app.use(express.urlencoded({extended: true, limit: "16kb"}));
-app.use(express.static("public"))
-app.use(cookieParser())
+// Middlewares
+app.use(express.json({ limit: "16kb" }));
+app.use(express.urlencoded({ extended: true, limit: "16kb" }));
+app.use(express.static("public"));
+app.use(cookieParser());
 
+// Health Check Route
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "Real Time Chat API is running 🚀",
+  });
+});
 
-export {app}
+// API Routes
+
+app.use("/api/v1/users", userRouter);
+
+app.use("/api/v1/friends", friendRouter);
+
+app.use("/api/v1/conversations", conversationRouter);
+
+app.use("/api/v1/messages", messageRouter);
+
+app.use("/api/v1/notifications", notificationRouter);
+
+export { app };

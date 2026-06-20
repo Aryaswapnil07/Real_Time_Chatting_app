@@ -1,13 +1,177 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Playfair:ital,opsz,wght@0,5..1200,300..900;1,5..1200,300..900&display=swap');
 
 @import "tailwindcss";
 
-*{
-  font-family: "Outfit",sans-serif;
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100dvh;
+  color: #e8f5ec;
+  background:
+    radial-gradient(circle at top, rgba(34, 197, 94, 0.18), transparent 35%),
+    linear-gradient(180deg, #08130c 0%, #071a0d 48%, #050f09 100%);
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: "Outfit", sans-serif;
+}
+
+*::selection {
+  background: rgba(74, 222, 128, 0.28);
+  color: #f4fff7;
+}
+
+a,
+button,
+input,
+textarea,
+select {
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease,
+    opacity 180ms ease;
+}
+
+button:hover,
+a:hover {
+  transform: translateY(-1px);
+}
+
+button:active,
+a:active {
+  transform: translateY(0) scale(0.99);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid rgba(74, 222, 128, 0.85);
+  outline-offset: 2px;
+}
+
+.app-shell {
+  min-height: 100dvh;
+  position: relative;
+  isolation: isolate;
+}
+
+.app-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(16, 185, 129, 0.12), transparent 24%),
+    radial-gradient(circle at 85% 10%, rgba(34, 197, 94, 0.1), transparent 20%),
+    radial-gradient(circle at 70% 85%, rgba(132, 204, 22, 0.08), transparent 22%);
+  z-index: -1;
+}
+
+.page-shell {
+  position: relative;
+  overflow: hidden;
+}
+
+.page-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent 35%),
+    radial-gradient(circle at top right, rgba(74, 222, 128, 0.07), transparent 32%);
+  opacity: 1;
+}
+
+.page-shell > * {
+  position: relative;
+  z-index: 1;
+}
+
+.page-shell--home > div,
+.page-shell--auth > section,
+.page-shell--profile > div,
+.page-shell--notifications > div {
+  animation: page-rise 420ms ease both;
+}
+
+img {
+  max-width: 100%;
+  display: block;
 }
 
 ::-webkit-scrollbar {
-  display: none;
-  
+  width: 0;
+  height: 0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
+@keyframes page-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 1024px) {
+  .page-shell {
+    padding: 0.75rem !important;
+  }
+
+  .page-shell--auth {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .page-shell--auth > section:first-child {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-shell {
+    padding: 0.5rem !important;
+  }
+
+  .page-shell--home > div,
+  .page-shell--profile > div,
+  .page-shell--notifications > div {
+    border-radius: 1rem;
+  }
+
+  .page-shell--notifications header {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-shell {
+    padding: 0.25rem !important;
+  }
+
+  .page-shell--home > div,
+  .page-shell--profile > div,
+  .page-shell--notifications section,
+  .page-shell--auth form {
+    border-radius: 0.875rem;
+  }
 }

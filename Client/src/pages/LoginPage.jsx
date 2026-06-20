@@ -109,8 +109,8 @@ const LoginPage = () => {
   const isSignup = mode === "signup";
 
   return (
-    <main className="min-h-screen bg-[#071a0d] text-slate-100 grid lg:grid-cols-[0.9fr_1.1fr]">
-      <section className="hidden lg:flex flex-col justify-between border-r border-white/10 bg-[#0b2412] px-12 py-10">
+    <main className="page-shell page-shell--auth grid min-h-dvh bg-[#071a0d] text-slate-100 lg:grid-cols-[0.9fr_1.1fr]">
+      <section className="hidden flex-col justify-between border-r border-white/10 bg-[#0b2412] px-8 py-8 lg:flex xl:px-12 xl:py-10">
         <div className="flex items-center gap-3">
           <div className="grid h-12 w-12 place-items-center rounded-lg bg-green-500 text-[#071a0d]">
             <BsChatDotsFill className="text-2xl" />
@@ -149,10 +149,10 @@ const LoginPage = () => {
         </div>
       </section>
 
-      <section className="flex min-h-screen items-center justify-center px-4 py-8">
+      <section className="flex min-h-dvh items-center justify-center px-4 py-8">
         <form
           onSubmit={handleSubmit}
-          className="w-full max-w-md rounded-lg border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/30"
+          className="w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/30 backdrop-blur-xl transition duration-300 md:p-7"
         >
           <div className="mb-6 flex items-center justify-between gap-4">
             <div>

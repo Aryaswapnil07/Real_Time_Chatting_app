@@ -159,9 +159,9 @@ const NotificationsPage = () => {
   };
 
   return (
-    <main className="min-h-screen bg-[#071a0d] p-4 text-green-50">
+    <main className="page-shell page-shell--notifications min-h-dvh bg-[#071a0d] p-3 text-green-50 sm:p-4">
       <div className="mx-auto max-w-5xl">
-        <header className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-green-500/20 bg-[#0b2412] p-4 shadow-2xl shadow-black/25">
+        <header className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-green-500/20 bg-[#0b2412]/95 p-4 shadow-2xl shadow-black/25 backdrop-blur-xl">
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -216,7 +216,7 @@ const NotificationsPage = () => {
           ))}
         </div>
 
-        <section className="overflow-hidden rounded-lg border border-green-500/20 bg-[#0b2412]">
+        <section className="overflow-hidden rounded-2xl border border-green-500/20 bg-[#0b2412]/95 backdrop-blur-xl">
           {loading ? (
             <div className="grid min-h-64 place-items-center">
               <div className="h-10 w-10 rounded-full border-2 border-green-400/25 border-t-green-400 animate-spin" />

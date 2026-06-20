@@ -51,11 +51,11 @@ const ProfilePage = () => {
   };
 
   return (
-    <main className="min-h-screen bg-[#071a0d] p-4 text-slate-100">
-      <div className="mx-auto flex min-h-[calc(100vh-2rem)] max-w-5xl items-center justify-center">
+    <main className="page-shell page-shell--profile min-h-dvh bg-[#071a0d] p-3 text-slate-100 sm:p-4">
+      <div className="mx-auto flex min-h-[calc(100dvh-1.5rem)] max-w-5xl items-center justify-center">
         <form
           onSubmit={handleSubmit}
-          className="grid w-full overflow-hidden rounded-lg border border-white/10 bg-[#0b2412] shadow-2xl shadow-black/30 lg:grid-cols-[1fr_340px]"
+          className="grid w-full overflow-hidden rounded-2xl border border-white/10 bg-[#0b2412]/95 shadow-2xl shadow-black/30 backdrop-blur-xl lg:grid-cols-[1fr_340px]"
         >
           <section className="p-5 md:p-8">
             <button

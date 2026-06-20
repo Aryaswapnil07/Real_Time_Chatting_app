@@ -41,7 +41,7 @@ const PublicRoute = ({ children }) => {
 
 const App = () => {
   return (
-    <div className="min-h-screen bg-[#071a0d]">
+    <div className="app-shell min-h-screen bg-[#071a0d]">
       <Routes>
         <Route
           path="/"

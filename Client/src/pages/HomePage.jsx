@@ -359,12 +359,12 @@ const HomePage = () => {
   };
 
   return (
-    <main className="h-screen bg-[#071a0d] p-2 text-slate-100 md:p-5">
+    <main className="page-shell page-shell--home min-h-dvh bg-[#071a0d] p-2 text-slate-100 md:p-5">
       <div
-        className={`mx-auto grid h-full max-w-[1500px] grid-cols-1 overflow-hidden rounded-lg border border-white/10 bg-[#0b2412] shadow-2xl shadow-black/30 ${
+        className={`mx-auto grid h-full max-w-[1500px] grid-cols-1 overflow-hidden rounded-2xl border border-white/10 bg-[#0b2412]/95 shadow-2xl shadow-black/30 backdrop-blur-xl ${
           selectedConversation
-            ? "lg:grid-cols-[340px_minmax(0,1fr)_310px]"
-            : "lg:grid-cols-[340px_minmax(0,1fr)]"
+            ? "xl:grid-cols-[340px_minmax(0,1fr)_310px]"
+            : "md:grid-cols-[320px_minmax(0,1fr)]"
         }`}
       >
         <SideBar

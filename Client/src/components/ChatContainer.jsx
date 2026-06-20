@@ -44,7 +44,7 @@ const ChatContainer = ({
 
   if (!selectedConversation) {
     return (
-      <section className="hidden h-full min-h-0 flex-col items-center justify-center gap-4 bg-[#102f19] px-6 text-center lg:flex">
+      <section className="hidden h-full min-h-0 flex-col items-center justify-center gap-4 bg-[#102f19] px-6 text-center md:flex">
         <div className="grid h-16 w-16 place-items-center rounded-lg bg-green-400 text-3xl text-[#071a0d]">
           <FiMessageCircle />
         </div>

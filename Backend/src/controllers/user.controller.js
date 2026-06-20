@@ -293,6 +293,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, user, "Avatar image updated successfully"));
 });
+// search karne ke liye user ko 
 
 const searchUsers = asyncHandler(async (req, res) => {
   const { query } = req.query;

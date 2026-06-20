@@ -1,9 +1,9 @@
-import { asyncHandler } from "../utils/asyncHandler";
-import { ApiError } from "../utils/ApiError";
-import { ApiResponse } from "../utils/ApiResponse";
-import { User } from "../models/User.models";
-import { FriendRequest } from "../models/friendRequest.model";
-import { Notification } from "../models/notification.models";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { User } from "../models/User.models.js";
+import { FriendRequest } from "../models/friendRequest.model.js";
+import { Notification } from "../models/notification.models.js";
 import mongoose from "mongoose";
 
 const sendFriendRequest = asyncHandler(async (req, res) => {

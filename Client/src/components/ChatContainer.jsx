@@ -1,133 +1,225 @@
-import React from "react";
-import { FaUserCircle } from "react-icons/fa";
-import { IoArrowBack, IoSend } from "react-icons/io5";
-import { BiHelpCircle } from "react-icons/bi";
-import { BsChatDotsFill } from "react-icons/bs";
-import { FiImage } from "react-icons/fi";
+import { useEffect, useRef, useState } from "react";
+import {
+  FiArrowLeft,
+  FiImage,
+  FiMessageCircle,
+  FiSend,
+  FiTrash2,
+} from "react-icons/fi";
+import UserAvatar from "./UserAvatar";
+import { formatLastSeen, formatMessageTime, getId } from "../utils/chat";
 
-const ChatContainer = ({ selectedUser, setSelectedUser }) => {
-  const messagesDummyData = [
-    {
-      senderId: "me",
-      text: "Hey! How are you?",
-      createdAt: "10:30 AM",
-    },
-    {
-      senderId: "user",
-      text: "I'm good. What about you?",
-      createdAt: "10:31 AM",
-    },
-    {
-      senderId: "me",
-      text: "Doing great! Working on my MERN Chat App 🚀",
-      createdAt: "10:32 AM",
-    },
-    {
-      senderId: "user",
-      text: "Awesome! Keep coding 😄",
-      createdAt: "10:33 AM",
-    },
-  ];
+const ChatContainer = ({
+  currentUser,
+  selectedConversation,
+  selectedPeer,
+  messages,
+  loading,
+  sending,
+  onBack,
+  onSendMessage,
+  onDeleteMessage,
+}) => {
+  const [text, setText] = useState("");
+  const [image, setImage] = useState("");
+  const [showImageInput, setShowImageInput] = useState(false);
+  const messagesEndRef = useRef(null);
 
-  return selectedUser ? (
-    <div className="h-full overflow-hidden relative backdrop-blur-lg">
-      {/* Header */}
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages.length, selectedConversation?._id]);
 
-      <div className="flex items-center gap-3 py-3 px-4 border-b border-green-500/30">
-        <FaUserCircle className="text-3xl text-green-400" />
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-        <p className="flex-1 text-lg text-white flex items-center gap-2">
-          {selectedUser.fullName}
+    if (!text.trim() && !image.trim()) {
+      return;
+    }
 
-          <span className="w-2 h-2 rounded-full bg-green-500"></span>
-        </p>
+    await onSendMessage({ text, image });
+    setText("");
+    setImage("");
+    setShowImageInput(false);
+  };
 
-        <IoArrowBack
-          onClick={() => setSelectedUser(null)}
-          className="md:hidden text-2xl cursor-pointer text-green-400"
-        />
+  if (!selectedConversation) {
+    return (
+      <section className="hidden h-full min-h-0 flex-col items-center justify-center gap-4 bg-[#102f19] px-6 text-center lg:flex">
+        <div className="grid h-16 w-16 place-items-center rounded-lg bg-green-400 text-3xl text-[#071a0d]">
+          <FiMessageCircle />
+        </div>
+        <div>
+          <h2 className="text-2xl font-semibold">Select a chat</h2>
+          <p className="mt-2 max-w-sm text-sm text-slate-400">
+            Your conversations and live messages will appear here.
+          </p>
+        </div>
+      </section>
+    );
+  }
 
-        <BiHelpCircle className="hidden md:block text-2xl cursor-pointer text-green-400" />
-      </div>
+  return (
+    <section className="flex h-full min-h-0 flex-col bg-[#102f19]">
+      <header className="flex h-16 shrink-0 items-center gap-3 border-b border-white/10 px-4">
+        <button
+          type="button"
+          onClick={onBack}
+          className="grid h-9 w-9 place-items-center rounded-lg text-slate-300 transition hover:bg-white/10 lg:hidden"
+          title="Back"
+        >
+          <FiArrowLeft />
+        </button>
 
-      {/* Chat Area */}
+        <UserAvatar user={selectedPeer} showStatus />
 
-      <div className="flex flex-col h-[calc(100%-140px)] overflow-y-scroll p-3 pb-6">
-        {messagesDummyData.map((msg, index) => (
-          <div
-            key={index}
-            className={`flex items-end gap-2 justify-end ${
-              msg.senderId !== "me" && "flex-row-reverse"
-            }`}
-          >
-            {msg.image ? (
-              <img
-                src={msg.image}
-                alt=""
-                className="max-w-[230px] border border-gray-700 rounded-lg overflow-hidden mb-8"
-              />
-            ) : (
-              <p
-                className={`p-2 max-w-[220px] md:text-sm font-light rounded-lg mb-8 break-all text-white ${
-                  msg.senderId === "me"
-                    ? "bg-green-500/30 rounded-br-none"
-                    : "bg-green-700/30 rounded-bl-none"
-                }`}
-              >
-                {msg.text}
-              </p>
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-semibold">
+            {selectedPeer?.fullName || "Conversation"}
+          </p>
+          <p className="truncate text-xs text-slate-400">
+            {selectedPeer?.isOnline ? "Online" : formatLastSeen(selectedPeer?.lastSeen)}
+          </p>
+        </div>
+      </header>
+
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5">
+        {loading ? (
+          <div className="flex h-full items-center justify-center">
+            <div className="h-10 w-10 rounded-full border-2 border-green-400/25 border-t-green-400 animate-spin" />
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {messages.map((message) => {
+              const isMine = getId(message.sender) === getId(currentUser);
+              const sender = isMine ? currentUser : message.sender;
+
+              return (
+                <div
+                  key={message._id}
+                  className={`group flex ${
+                    isMine ? "justify-end" : "justify-start"
+                  }`}
+                >
+                  <div
+                    className={`flex max-w-[88%] items-end gap-2 md:max-w-[76%] ${
+                      isMine ? "flex-row-reverse" : ""
+                    }`}
+                  >
+                    <UserAvatar user={sender} size="sm" />
+
+                    <div className={isMine ? "items-end" : "items-start"}>
+                      {message.image && (
+                        <a
+                          href={message.image}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mb-1 block overflow-hidden rounded-lg border border-white/10"
+                        >
+                          <img
+                            src={message.image}
+                            alt=""
+                            className="max-h-64 max-w-full object-cover"
+                          />
+                        </a>
+                      )}
+
+                      {message.text && (
+                        <p
+                          className={`break-words rounded-lg px-3 py-2 text-sm leading-6 ${
+                            isMine
+                              ? "rounded-br-sm bg-green-400 text-[#071a0d]"
+                              : "rounded-bl-sm bg-white/10 text-slate-100"
+                          }`}
+                        >
+                          {message.text}
+                        </p>
+                      )}
+
+                      <div
+                        className={`mt-1 flex items-center gap-2 text-[11px] text-slate-500 ${
+                          isMine ? "justify-end" : ""
+                        }`}
+                      >
+                        <span>{formatMessageTime(message.createdAt)}</span>
+                        {isMine && (
+                          <button
+                            type="button"
+                            onClick={() => onDeleteMessage(message._id)}
+                            className="opacity-0 transition hover:text-red-200 group-hover:opacity-100"
+                            title="Delete message"
+                          >
+                            <FiTrash2 />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
+            {!messages.length && (
+              <div className="flex h-[45vh] items-center justify-center text-sm text-slate-400">
+                No messages yet
+              </div>
             )}
 
-            <div className="text-center text-xs">
-              <FaUserCircle className="w-7 h-7 text-green-400 mx-auto" />
-
-              <p className="text-gray-400">
-                {msg.createdAt}
-              </p>
-            </div>
+            <div ref={messagesEndRef} />
           </div>
-        ))}
+        )}
       </div>
 
-      {/* Bottom Area */}
-
-      <div className="absolute bottom-0 left-0 right-0 flex items-center gap-3 p-3 bg-[#111827]/80 backdrop-blur-sm">
-        <div className="flex-1 flex items-center bg-green-500/20 border border-green-500/30 px-3 rounded-full">
+      <form
+        onSubmit={handleSubmit}
+        className="shrink-0 border-t border-white/10 bg-[#0b2412] p-3"
+      >
+        {showImageInput && (
           <input
-            type="text"
-            placeholder="Send a message"
-            className="flex-1 text-sm p-3 border-none rounded-lg outline-none bg-transparent text-white placeholder-green-200"
+            value={image}
+            onChange={(event) => setImage(event.target.value)}
+            className="mb-3 w-full rounded-lg border border-white/10 bg-[#071a0d] px-3 py-2 text-sm outline-none transition placeholder:text-slate-500 focus:border-green-400"
+            placeholder="Image URL"
+          />
+        )}
+
+        <div className="flex items-end gap-2">
+          <button
+            type="button"
+            onClick={() => setShowImageInput((current) => !current)}
+            className={`grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-white/10 transition ${
+              showImageInput
+                ? "bg-green-400 text-[#071a0d]"
+                : "text-slate-300 hover:bg-white/10"
+            }`}
+            title="Add image URL"
+          >
+            <FiImage />
+          </button>
+
+          <textarea
+            value={text}
+            onChange={(event) => setText(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                event.currentTarget.form?.requestSubmit();
+              }
+            }}
+            className="max-h-32 min-h-11 flex-1 resize-none rounded-lg border border-white/10 bg-[#071a0d] px-4 py-3 text-sm outline-none transition placeholder:text-slate-500 focus:border-green-400"
+            placeholder="Message"
           />
 
-          <input
-            type="file"
-            id="image"
-            accept="image/png,image/jpeg,image/jpg"
-            hidden
-          />
-
-          <label htmlFor="image">
-            <FiImage className="text-2xl text-green-400 mr-2 cursor-pointer hover:text-green-300 transition" />
-          </label>
+          <button
+            type="submit"
+            disabled={sending || (!text.trim() && !image.trim())}
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-green-400 text-[#071a0d] transition hover:bg-green-300 disabled:cursor-not-allowed disabled:opacity-60"
+            title="Send"
+          >
+            <FiSend />
+          </button>
         </div>
-
-        <button className="w-12 h-12 rounded-full bg-green-500 hover:bg-green-600 transition flex justify-center items-center">
-          <IoSend className="text-xl text-white" />
-        </button>
-      </div>
-    </div>
-  ) : (
-    <div className="flex flex-col items-center justify-center gap-3 text-gray-400 bg-green-500/10 max-md:hidden">
-      <BsChatDotsFill className="text-7xl text-green-500" />
-
-      <p className="text-2xl font-semibold text-white">
-        Chat Anytime, Anywhere
-      </p>
-
-      <p className="text-green-200">
-        Select a conversation and start messaging.
-      </p>
-    </div>
+      </form>
+    </section>
   );
 };
 

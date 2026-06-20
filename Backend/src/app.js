@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { corsOptions } from "./utils/corsOptions.js"; //after commit
 
 // Route Imports
 import userRouter from "./routes/user.routes.js";
@@ -12,12 +13,7 @@ import notificationRouter from "./routes/notification.routes.js";
 const app = express();
 
 // CORS Configuration
-app.use(
-  cors({
-    origin: process.env.CORS_ORIGIN,
-    credentials: true,
-  })
-);
+app.use(cors(corsOptions));
 
 // Middlewares
 app.use(express.json({ limit: "16kb" }));
@@ -44,5 +40,18 @@ app.use("/api/v1/conversations", conversationRouter);
 app.use("/api/v1/messages", messageRouter);
 
 app.use("/api/v1/notifications", notificationRouter);
+
+// after commit
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+
+  return res.status(statusCode).json({
+    statusCode,
+    data: err.data || null,
+    message: err.message || "Internal Server Error",
+    success: false,
+    errors: err.errors || [],
+  });
+});
 
 export { app };

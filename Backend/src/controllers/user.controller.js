@@ -5,6 +5,13 @@ import { uploadOnCloudinary } from "../utils/Cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
+// after commit
+
+const getCookieOptions = () => ({
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+});
 
 const generateAccessAndRefreshTokens = async (userId) => {
   try {
@@ -120,10 +127,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
   // upar wale line ke code ka mtlb user logged in ho chuka ha ab scurity purpose ke karan usko iid diya ja rha h or password or refresh token hataya ja rha hai
 
-  const options = {
-    httpOnly: true,
-    secure: true,
-  };
+  const options = getCookieOptions();
   return res
     .status(200)
     .cookie("accessToken", accessToken, options)
@@ -156,10 +160,7 @@ const logoutUser = asyncHandler(async (req, res) => {
     }
   );
 
-  const options = {
-    httpOnly: true,
-    secure: true,
-  };
+  const options = getCookieOptions();
   return res
     .status(200)
     .clearCookie("accessToken", options)
@@ -193,12 +194,9 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       throw new ApiError(401, "Refresh Token is expired or used ");
     }
 
-    const options = {
-      httpOnly: true,
-      secure: true,
-    };
+    const options = getCookieOptions();
 
-    const { accessToken, newRefreshToken } =
+    const { accessToken, refreshToken: newRefreshToken } =
       await generateAccessAndRefreshTokens(user._id);
 
     return res

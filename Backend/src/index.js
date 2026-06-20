@@ -11,16 +11,14 @@ import { Server } from "socket.io";
 
 import { initSocket } from "./socket/socket.js";
 import socketHandler from "./socket/socketHandler.js";
+import { corsOptions } from "./utils/corsOptions.js"; // after commit
 
 // Create HTTP Server
 const server = http.createServer(app);
 
 // Create Socket.io Server
 const io = new Server(server, {
-  cors: {
-    origin: process.env.CORS_ORIGIN,
-    credentials: true,
-  },
+  cors: corsOptions,
 });
 
 // Initialize Socket

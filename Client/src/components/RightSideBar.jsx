@@ -1,84 +1,93 @@
-import React from "react";
-import { FaUserCircle } from "react-icons/fa";
+import { FiLogOut, FiTrash2 } from "react-icons/fi";
+import UserAvatar from "./UserAvatar";
+import { formatLastSeen } from "../utils/chat";
 
-const RightSidebar = ({ selectedUser }) => {
-  const imagesDummyData = [
-    "https://picsum.photos/200?random=1",
-    "https://picsum.photos/200?random=2",
-    "https://picsum.photos/200?random=3",
-    "https://picsum.photos/200?random=4",
-    "https://picsum.photos/200?random=5",
-    "https://picsum.photos/200?random=6",
-  ];
+const RightSideBar = ({
+  selectedPeer,
+  friends,
+  messages,
+  onRemoveFriend,
+  onLogout,
+}) => {
+  if (!selectedPeer) {
+    return null;
+  }
+
+  const isFriend = friends.some((friend) => friend._id === selectedPeer._id);
+  const media = messages.filter((message) => message.image).slice(-12).reverse();
 
   return (
-    selectedUser && (
-      <div
-        className={`bg-green-500/10 text-white w-full relative overflow-y-scroll ${
-          selectedUser ? "max-md:hidden" : ""
-        }`}
-      >
-        <div className="pt-16 flex flex-col items-center gap-2 text-xs font-light mx-auto">
-          {/* Profile */}
-
-          <div className="relative">
-            <FaUserCircle className="text-8xl text-green-400" />
-
-            <span className="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-[#111827]"></span>
-          </div>
-
-          {/* Name */}
-
-          <h1 className="px-10 text-xl font-medium mx-auto flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-green-500"></span>
-
-            {selectedUser.fullName}
-          </h1>
-
-          {/* Bio */}
-
-          <p className="px-10 mx-auto text-center text-green-100">
-            {selectedUser.bio ||
-              "Available for chatting anytime 🚀"}
+    <aside className="hidden h-full min-h-0 flex-col border-l border-white/10 bg-[#0b2412] lg:flex">
+      <div className="border-b border-white/10 p-5 text-center">
+        <div className="flex justify-center">
+          <UserAvatar user={selectedPeer} size="lg" showStatus />
+        </div>
+        <h2 className="mt-4 truncate text-xl font-semibold">
+          {selectedPeer.fullName}
+        </h2>
+        <p className="truncate text-sm text-slate-400">@{selectedPeer.username}</p>
+        <p className="mt-2 text-sm text-slate-400">
+          {selectedPeer.isOnline ? "Online" : formatLastSeen(selectedPeer.lastSeen)}
+        </p>
+        {selectedPeer.bio && (
+          <p className="mt-4 rounded-lg border border-white/10 bg-white/[0.03] p-3 text-sm leading-6 text-slate-300">
+            {selectedPeer.bio}
           </p>
+        )}
+      </div>
+
+      <div className="min-h-0 flex-1 overflow-y-auto p-5">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-semibold uppercase text-slate-500">Media</h3>
+          <span className="text-xs text-slate-500">{media.length}</span>
         </div>
 
-        {/* Divider */}
-
-        <hr className="border-[#ffffff50] my-4" />
-
-        {/* Media */}
-
-        <div className="px-5 text-xs">
-          <p>Media</p>
-
-          <div className="mt-2 max-h-[200px] overflow-y-scroll grid grid-cols-2 gap-4 opacity-80">
-            {imagesDummyData.map((url, index) => (
-              <div
-                key={index}
-                onClick={() => window.open(url)}
-                className="cursor-pointer rounded"
+        {media.length ? (
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            {media.map((message) => (
+              <a
+                key={message._id}
+                href={message.image}
+                target="_blank"
+                rel="noreferrer"
+                className="aspect-square overflow-hidden rounded-lg border border-white/10 bg-white/[0.03]"
               >
                 <img
-                  src={url}
+                  src={message.image}
                   alt=""
-                  className="h-full rounded-md"
+                  className="h-full w-full object-cover"
                 />
-              </div>
+              </a>
             ))}
           </div>
-        </div>
-
-        {/* Logout */}
-
-        <div className="flex justify-center">
-          <button className="mt-8 mb-6 bg-red-500 hover:bg-red-600 transition px-8 py-3 rounded-full text-sm font-medium">
-            Logout
-          </button>
-        </div>
+        ) : (
+          <p className="mt-6 text-center text-sm text-slate-400">No media</p>
+        )}
       </div>
-    )
+
+      <div className="space-y-2 border-t border-white/10 p-4">
+        {isFriend && (
+          <button
+            type="button"
+            onClick={() => onRemoveFriend(selectedPeer._id)}
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-red-400/25 px-4 py-3 text-sm font-medium text-red-200 transition hover:bg-red-500/10"
+          >
+            <FiTrash2 />
+            Remove friend
+          </button>
+        )}
+
+        <button
+          type="button"
+          onClick={onLogout}
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-white/10 px-4 py-3 text-sm font-medium text-slate-100 transition hover:bg-white/15"
+        >
+          <FiLogOut />
+          Logout
+        </button>
+      </div>
+    </aside>
   );
 };
 
-export default RightSidebar;
+export default RightSideBar;

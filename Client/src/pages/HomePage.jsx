@@ -359,31 +359,35 @@ const HomePage = () => {
   };
 
   return (
-    <main className="page-shell page-shell--home min-h-dvh bg-[#071a0d] p-2 text-slate-100 md:p-5">
+    <main className="page-shell page-shell--home min-h-dvh bg-[#071a0d] p-2 text-slate-100 sm:p-3 md:p-4 lg:p-5">
       <div
-        className={`mx-auto grid h-full max-w-[1500px] grid-cols-1 overflow-hidden rounded-2xl border border-white/10 bg-[#0b2412]/95 shadow-2xl shadow-black/30 backdrop-blur-xl ${
+        className={`mx-auto grid h-full max-w-full overflow-hidden rounded-xl border border-white/10 bg-[#0b2412]/95 shadow-2xl shadow-black/30 backdrop-blur-xl sm:rounded-2xl sm:max-w-[95vw] md:max-w-[97vw] lg:max-w-[1500px] ${
           selectedConversation
-            ? "xl:grid-cols-[340px_minmax(0,1fr)_310px]"
-            : "md:grid-cols-[320px_minmax(0,1fr)]"
+            ? "grid-cols-1 sm:grid-cols-[1fr] lg:grid-cols-[280px_minmax(0,1fr)_280px] xl:grid-cols-[340px_minmax(0,1fr)_310px]"
+            : "grid-cols-1 sm:grid-cols-[280px_minmax(0,1fr)] md:grid-cols-[300px_minmax(0,1fr)] lg:grid-cols-[320px_minmax(0,1fr)]"
         }`}
       >
-        <SideBar
-          currentUser={user}
-          conversations={conversations}
-          selectedConversation={selectedConversation}
-          pendingRequests={pendingRequests}
-          friends={friends}
-          unreadNotifications={unreadNotifications}
-          loading={loadingConversations}
-          searchUsers={usersApi.search}
-          onSelectConversation={setSelectedConversation}
-          onStartConversation={handleStartConversation}
-          onSendFriendRequest={handleSendFriendRequest}
-          onAcceptRequest={handleAcceptRequest}
-          onRejectRequest={handleRejectRequest}
-          onLogout={logout}
-        />
+        {/* SIDEBAR - Hidden on mobile when chat selected */}
+        <div className={`${selectedConversation ? "hidden sm:block" : "block"}`}>
+          <SideBar
+            currentUser={user}
+            conversations={conversations}
+            selectedConversation={selectedConversation}
+            pendingRequests={pendingRequests}
+            friends={friends}
+            unreadNotifications={unreadNotifications}
+            loading={loadingConversations}
+            searchUsers={usersApi.search}
+            onSelectConversation={setSelectedConversation}
+            onStartConversation={handleStartConversation}
+            onSendFriendRequest={handleSendFriendRequest}
+            onAcceptRequest={handleAcceptRequest}
+            onRejectRequest={handleRejectRequest}
+            onLogout={logout}
+          />
+        </div>
 
+        {/* CHAT CONTAINER - Full width on mobile when selected */}
         <ChatContainer
           currentUser={user}
           selectedConversation={selectedConversation}
@@ -396,20 +400,24 @@ const HomePage = () => {
           onDeleteMessage={handleDeleteMessage}
         />
 
-        <RightSideBar
-          currentUser={user}
-          selectedConversation={selectedConversation}
-          selectedPeer={selectedPeer}
-          friends={friends}
-          messages={messages}
-          onRemoveFriend={handleRemoveFriend}
-          onLogout={logout}
-        />
+        {/* RIGHT SIDEBAR - Hidden on mobile and tablet, visible on desktop when chat selected */}
+        <div className={`${selectedConversation ? "hidden lg:block" : "hidden"}`}>
+          <RightSideBar
+            currentUser={user}
+            selectedConversation={selectedConversation}
+            selectedPeer={selectedPeer}
+            friends={friends}
+            messages={messages}
+            onRemoveFriend={handleRemoveFriend}
+            onLogout={logout}
+          />
+        </div>
       </div>
 
+      {/* TOAST NOTIFICATIONS - Responsive positioning */}
       {(error || notice) && (
         <div
-          className={`fixed right-4 top-4 z-50 max-w-sm rounded-lg border px-4 py-3 text-sm shadow-xl ${
+          className={`fixed right-2 top-2 z-50 max-w-sm rounded-lg border px-3 py-2 text-xs shadow-xl sm:right-4 sm:top-4 sm:px-4 sm:py-3 sm:text-sm ${
             error
               ? "border-red-400/30 bg-red-500/15 text-red-100"
               : "border-emerald-400/30 bg-emerald-500/15 text-emerald-100"

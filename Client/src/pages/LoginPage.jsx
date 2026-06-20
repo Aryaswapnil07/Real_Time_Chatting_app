@@ -110,112 +110,127 @@ const LoginPage = () => {
 
   return (
     <main className="page-shell page-shell--auth grid min-h-dvh bg-[#071a0d] text-slate-100 lg:grid-cols-[0.9fr_1.1fr]">
-      <section className="hidden flex-col justify-between border-r border-white/10 bg-[#0b2412] px-8 py-8 lg:flex xl:px-12 xl:py-10">
-        <div className="flex items-center gap-3">
-          <div className="grid h-12 w-12 place-items-center rounded-lg bg-green-500 text-[#071a0d]">
-            <BsChatDotsFill className="text-2xl" />
+      {/* BRANDING SECTION - Hidden on mobile and small tablets */}
+      <section className="hidden flex-col justify-between border-r border-white/10 bg-[#0b2412] px-5 py-6 sm:px-6 sm:py-8 md:px-7 md:py-9 lg:flex lg:px-8 lg:py-8 xl:px-12 xl:py-10">
+        {/* Logo */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="grid h-10 w-10 place-items-center rounded-lg bg-green-500 text-xl text-[#071a0d] sm:h-12 sm:w-12 sm:text-2xl">
+            <BsChatDotsFill />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold">QuickChat</h1>
-            <p className="text-sm text-slate-400">@real-time</p>
+            <h1 className="text-xl font-semibold sm:text-2xl">QuickChat</h1>
+            <p className="text-xs text-slate-400 sm:text-sm">@real-time</p>
           </div>
         </div>
 
+        {/* Heading and description */}
         <div className="max-w-md">
-          <p className="text-sm font-medium uppercase tracking-[0.25em] text-amber-300">
+          <p className="text-xs font-medium uppercase tracking-[0.25em] text-amber-300 sm:text-sm">
             MERN chat
           </p>
-          <h2 className="mt-4 text-5xl font-semibold leading-tight">
+          <h2 className="mt-3 text-3xl font-semibold leading-tight sm:mt-4 sm:text-4xl lg:text-5xl">
             Messages, friends, and live presence in one workspace.
           </h2>
-          <p className="mt-5 text-base text-slate-400">
+          <p className="mt-3 text-sm text-slate-400 sm:mt-5 sm:text-base">
             Built against your Express, MongoDB, JWT, and Socket.IO backend.
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 text-sm text-slate-300">
-          <div className="rounded-lg border border-white/10 p-4">
+        {/* Feature cards */}
+        <div className="grid grid-cols-3 gap-2 text-xs text-slate-300 sm:gap-3 sm:text-sm">
+          <div className="rounded-lg border border-white/10 p-3 sm:p-4">
             <p className="text-green-400">REST</p>
-            <p className="mt-2 text-slate-400">Auth and data</p>
+            <p className="mt-1.5 text-slate-400 sm:mt-2">Auth and data</p>
           </div>
-          <div className="rounded-lg border border-white/10 p-4">
+          <div className="rounded-lg border border-white/10 p-3 sm:p-4">
             <p className="text-emerald-300">Socket</p>
-            <p className="mt-2 text-slate-400">Live messages</p>
+            <p className="mt-1.5 text-slate-400 sm:mt-2">Live messages</p>
           </div>
-          <div className="rounded-lg border border-white/10 p-4">
+          <div className="rounded-lg border border-white/10 p-3 sm:p-4">
             <p className="text-amber-300">JWT</p>
-            <p className="mt-2 text-slate-400">Private routes</p>
+            <p className="mt-1.5 text-slate-400 sm:mt-2">Private routes</p>
           </div>
         </div>
       </section>
 
-      <section className="flex min-h-dvh items-center justify-center px-4 py-8">
+      {/* AUTH FORM SECTION - Full width on mobile */}
+      <section className="flex min-h-dvh items-center justify-center px-3 py-6 sm:px-4 sm:py-8">
         <form
           onSubmit={handleSubmit}
-          className="w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/30 backdrop-blur-xl transition duration-300 md:p-7"
+          className="w-full max-w-sm rounded-xl border border-white/10 bg-white/[0.04] p-4 shadow-2xl shadow-black/30 backdrop-blur-xl transition duration-300 sm:rounded-2xl sm:max-w-md sm:p-6 md:p-7"
         >
-          <div className="mb-6 flex items-center justify-between gap-4">
+          {/* Form header */}
+          <div className="mb-5 flex items-center justify-between gap-3 sm:mb-6">
             <div>
-              <p className="text-sm text-slate-400">
+              <p className="text-xs text-slate-400 sm:text-sm">
                 {isSignup ? "Create account" : "Welcome back"}
               </p>
-              <h2 className="text-3xl font-semibold">
+              <h2 className="text-2xl font-semibold sm:text-3xl">
                 {isSignup ? "Sign up" : "Login"}
               </h2>
             </div>
 
-            <div className="grid h-12 w-12 place-items-center rounded-lg bg-green-500/15 text-green-400">
+            <div className="grid h-10 w-10 place-items-center rounded-lg bg-green-500/15 text-lg text-green-400 sm:h-12 sm:w-12 sm:text-xl">
               {isSignup ? <FiUserPlus /> : <FiLogIn />}
             </div>
           </div>
 
+          {/* Error message */}
           {error && (
-            <div className="mb-4 rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+            <div className="mb-3 rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2 text-xs text-red-200 sm:mb-4 sm:text-sm">
               {error}
             </div>
           )}
 
-          <div className="space-y-3">
+          {/* Form fields */}
+          <div className="space-y-2.5 sm:space-y-3">
             {isSignup ? (
               <>
+                {/* Full Name */}
                 <input
                   value={form.fullName}
                   onChange={(event) => updateField("fullName", event.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-[#071a0d] px-4 py-3 text-sm outline-none transition focus:border-green-400"
+                  className="w-full rounded-lg border border-white/10 bg-[#071a0d] px-3 py-2 text-xs outline-none transition focus:border-green-400 sm:px-4 sm:py-3 sm:text-sm"
                   placeholder="Full name"
                   required
                 />
+
+                {/* Username */}
                 <input
                   value={form.username}
                   onChange={(event) => updateField("username", event.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-[#071a0d] px-4 py-3 text-sm outline-none transition focus:border-green-400"
+                  className="w-full rounded-lg border border-white/10 bg-[#071a0d] px-3 py-2 text-xs outline-none transition focus:border-green-400 sm:px-4 sm:py-3 sm:text-sm"
                   placeholder="Username"
                   required
                 />
+
+                {/* Email */}
                 <input
                   type="email"
                   value={form.email}
                   onChange={(event) => updateField("email", event.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-[#071a0d] px-4 py-3 text-sm outline-none transition focus:border-green-400"
+                  className="w-full rounded-lg border border-white/10 bg-[#071a0d] px-3 py-2 text-xs outline-none transition focus:border-green-400 sm:px-4 sm:py-3 sm:text-sm"
                   placeholder="Email address"
                   required
                 />
               </>
             ) : (
+              /* Login - Email or username */
               <input
                 value={form.identifier}
                 onChange={(event) => updateField("identifier", event.target.value)}
-                className="w-full rounded-lg border border-white/10 bg-[#071a0d] px-4 py-3 text-sm outline-none transition focus:border-green-400"
+                className="w-full rounded-lg border border-white/10 bg-[#071a0d] px-3 py-2 text-xs outline-none transition focus:border-green-400 sm:px-4 sm:py-3 sm:text-sm"
                 placeholder="Email or username"
                 required
               />
             )}
 
+            {/* Password */}
             <input
               type="password"
               value={form.password}
               onChange={(event) => updateField("password", event.target.value)}
-              className="w-full rounded-lg border border-white/10 bg-[#071a0d] px-4 py-3 text-sm outline-none transition focus:border-green-400"
+              className="w-full rounded-lg border border-white/10 bg-[#071a0d] px-3 py-2 text-xs outline-none transition focus:border-green-400 sm:px-4 sm:py-3 sm:text-sm"
               placeholder="Password"
               required
               minLength={6}
@@ -223,14 +238,16 @@ const LoginPage = () => {
 
             {isSignup && (
               <>
+                {/* Bio */}
                 <textarea
                   value={form.bio}
                   onChange={(event) => updateField("bio", event.target.value)}
-                  className="min-h-24 w-full resize-none rounded-lg border border-white/10 bg-[#071a0d] px-4 py-3 text-sm outline-none transition focus:border-green-400"
+                  className="min-h-20 w-full resize-none rounded-lg border border-white/10 bg-[#071a0d] px-3 py-2 text-xs outline-none transition focus:border-green-400 sm:min-h-24 sm:px-4 sm:py-3 sm:text-sm"
                   placeholder="Bio"
                 />
 
-                <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-white/15 bg-[#071a0d] px-4 py-3 text-sm text-slate-300 transition hover:border-green-400/70">
+                {/* Avatar upload */}
+                <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-white/15 bg-[#071a0d] px-3 py-2 text-xs text-slate-300 transition hover:border-green-400/70 sm:gap-3 sm:px-4 sm:py-3 sm:text-sm">
                   <input
                     type="file"
                     accept="image/png,image/jpeg,image/jpg"
@@ -241,22 +258,23 @@ const LoginPage = () => {
                     <img
                       src={avatarPreview}
                       alt=""
-                      className="h-11 w-11 rounded-full object-cover"
+                      className="h-9 w-9 rounded-full object-cover sm:h-11 sm:w-11"
                     />
                   ) : (
-                    <span className="grid h-11 w-11 place-items-center rounded-full bg-green-500/15 text-green-400">
+                    <span className="grid h-9 w-9 place-items-center rounded-full bg-green-500/15 text-sm text-green-400 sm:h-11 sm:w-11">
                       <FiImage />
                     </span>
                   )}
-                  <span>{avatarFile ? avatarFile.name : "Choose avatar"}</span>
+                  <span className="truncate">{avatarFile ? avatarFile.name : "Choose avatar"}</span>
                 </label>
 
-                <label className="flex items-start gap-3 text-sm text-slate-400">
+                {/* Terms checkbox */}
+                <label className="flex items-start gap-2 text-xs text-slate-400 sm:text-sm">
                   <input
                     type="checkbox"
                     checked={agree}
                     onChange={(event) => setAgree(event.target.checked)}
-                    className="mt-1"
+                    className="mt-0.5 sm:mt-1"
                   />
                   <span>Agree to the terms of use and privacy policy.</span>
                 </label>
@@ -264,16 +282,18 @@ const LoginPage = () => {
             )}
           </div>
 
+          {/* Submit button */}
           <button
             type="submit"
             disabled={loading}
-            className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-green-400 px-4 py-3 font-semibold text-[#071a0d] transition hover:bg-green-300 disabled:cursor-not-allowed disabled:opacity-70"
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-green-400 px-3 py-2 text-xs font-semibold text-[#071a0d] transition hover:bg-green-300 disabled:cursor-not-allowed disabled:opacity-70 sm:mt-5 sm:px-4 sm:py-3 sm:text-sm"
           >
             {isSignup ? <FiUserPlus /> : <FiLogIn />}
             {loading ? "Please wait" : isSignup ? "Create account" : "Login"}
           </button>
 
-          <div className="mt-5 text-center text-sm text-slate-400">
+          {/* Mode switch link */}
+          <div className="mt-4 text-center text-xs text-slate-400 sm:mt-5 sm:text-sm">
             {isSignup ? "Already have an account?" : "New to QuickChat?"}{" "}
             <button
               type="button"

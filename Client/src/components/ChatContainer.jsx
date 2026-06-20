@@ -44,13 +44,13 @@ const ChatContainer = ({
 
   if (!selectedConversation) {
     return (
-      <section className="hidden h-full min-h-0 flex-col items-center justify-center gap-4 bg-[#102f19] px-6 text-center md:flex">
-        <div className="grid h-16 w-16 place-items-center rounded-lg bg-green-400 text-3xl text-[#071a0d]">
+      <section className="hidden h-full min-h-0 flex-col items-center justify-center gap-3 bg-[#102f19] px-4 text-center sm:px-6 md:flex">
+        <div className="grid h-12 w-12 place-items-center rounded-lg bg-green-400 text-3xl text-[#071a0d] sm:h-16 sm:w-16">
           <FiMessageCircle />
         </div>
         <div>
-          <h2 className="text-2xl font-semibold">Select a chat</h2>
-          <p className="mt-2 max-w-sm text-sm text-slate-400">
+          <h2 className="text-xl font-semibold sm:text-2xl">Select a chat</h2>
+          <p className="mt-2 max-w-sm text-xs text-slate-400 sm:text-sm">
             Your conversations and live messages will appear here.
           </p>
         </div>
@@ -60,20 +60,21 @@ const ChatContainer = ({
 
   return (
     <section className="flex h-full min-h-0 flex-col bg-[#102f19]">
-      <header className="flex h-16 shrink-0 items-center gap-3 border-b border-white/10 px-4">
+      {/* HEADER - Responsive */}
+      <header className="flex h-14 shrink-0 items-center gap-2 border-b border-white/10 px-3 sm:h-16 sm:gap-3 sm:px-4">
         <button
           type="button"
           onClick={onBack}
           className="grid h-9 w-9 place-items-center rounded-lg text-slate-300 transition hover:bg-white/10 lg:hidden"
           title="Back"
         >
-          <FiArrowLeft />
+          <FiArrowLeft className="text-base sm:text-lg" />
         </button>
 
         <UserAvatar user={selectedPeer} showStatus />
 
         <div className="min-w-0 flex-1">
-          <p className="truncate font-semibold">
+          <p className="truncate text-sm font-semibold sm:text-base">
             {selectedPeer?.fullName || "Conversation"}
           </p>
           <p className="truncate text-xs text-slate-400">
@@ -82,13 +83,14 @@ const ChatContainer = ({
         </div>
       </header>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5">
+      {/* MESSAGES AREA - Responsive */}
+      <div className="min-h-0 flex-1 overflow-y-auto px-3 py-4 sm:px-4 sm:py-5">
         {loading ? (
           <div className="flex h-full items-center justify-center">
-            <div className="h-10 w-10 rounded-full border-2 border-green-400/25 border-t-green-400 animate-spin" />
+            <div className="h-8 w-8 rounded-full border-2 border-green-400/25 border-t-green-400 animate-spin sm:h-10 sm:w-10" />
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {messages.map((message) => {
               const isMine = getId(message.sender) === getId(currentUser);
               const sender = isMine ? currentUser : message.sender;
@@ -101,7 +103,7 @@ const ChatContainer = ({
                   }`}
                 >
                   <div
-                    className={`flex max-w-[88%] items-end gap-2 md:max-w-[76%] ${
+                    className={`flex max-w-[85%] items-end gap-2 sm:max-w-[76%] ${
                       isMine ? "flex-row-reverse" : ""
                     }`}
                   >
@@ -118,14 +120,14 @@ const ChatContainer = ({
                           <img
                             src={message.image}
                             alt=""
-                            className="max-h-64 max-w-full object-cover"
+                            className="max-h-48 max-w-full object-cover sm:max-h-64"
                           />
                         </a>
                       )}
 
                       {message.text && (
                         <p
-                          className={`break-words rounded-lg px-3 py-2 text-sm leading-6 ${
+                          className={`break-words rounded-lg px-2.5 py-2 text-xs leading-5 sm:px-3 sm:py-2 sm:text-sm sm:leading-6 ${
                             isMine
                               ? "rounded-br-sm bg-green-400 text-[#071a0d]"
                               : "rounded-bl-sm bg-white/10 text-slate-100"
@@ -136,7 +138,7 @@ const ChatContainer = ({
                       )}
 
                       <div
-                        className={`mt-1 flex items-center gap-2 text-[11px] text-slate-500 ${
+                        className={`mt-1 flex items-center gap-1.5 text-[10px] text-slate-500 sm:gap-2 sm:text-[11px] ${
                           isMine ? "justify-end" : ""
                         }`}
                       >
@@ -148,7 +150,7 @@ const ChatContainer = ({
                             className="opacity-0 transition hover:text-red-200 group-hover:opacity-100"
                             title="Delete message"
                           >
-                            <FiTrash2 />
+                            <FiTrash2 className="text-xs sm:text-sm" />
                           </button>
                         )}
                       </div>
@@ -159,7 +161,7 @@ const ChatContainer = ({
             })}
 
             {!messages.length && (
-              <div className="flex h-[45vh] items-center justify-center text-sm text-slate-400">
+              <div className="flex h-[40vh] items-center justify-center text-xs text-slate-400 sm:h-[45vh] sm:text-sm">
                 No messages yet
               </div>
             )}
@@ -169,33 +171,36 @@ const ChatContainer = ({
         )}
       </div>
 
+      {/* MESSAGE INPUT FORM - Responsive */}
       <form
         onSubmit={handleSubmit}
-        className="shrink-0 border-t border-white/10 bg-[#0b2412] p-3"
+        className="shrink-0 border-t border-white/10 bg-[#0b2412] p-2 sm:p-3"
       >
         {showImageInput && (
           <input
             value={image}
             onChange={(event) => setImage(event.target.value)}
-            className="mb-3 w-full rounded-lg border border-white/10 bg-[#071a0d] px-3 py-2 text-sm outline-none transition placeholder:text-slate-500 focus:border-green-400"
+            className="mb-2 w-full rounded-lg border border-white/10 bg-[#071a0d] px-2.5 py-2 text-xs outline-none transition placeholder:text-slate-500 focus:border-green-400 sm:mb-3 sm:px-3 sm:py-2 sm:text-sm"
             placeholder="Image URL"
           />
         )}
 
         <div className="flex items-end gap-2">
+          {/* Image button */}
           <button
             type="button"
             onClick={() => setShowImageInput((current) => !current)}
-            className={`grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-white/10 transition ${
+            className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-white/10 transition sm:h-11 sm:w-11 ${
               showImageInput
                 ? "bg-green-400 text-[#071a0d]"
                 : "text-slate-300 hover:bg-white/10"
             }`}
             title="Add image URL"
           >
-            <FiImage />
+            <FiImage className="text-base sm:text-lg" />
           </button>
 
+          {/* Message textarea */}
           <textarea
             value={text}
             onChange={(event) => setText(event.target.value)}
@@ -205,17 +210,18 @@ const ChatContainer = ({
                 event.currentTarget.form?.requestSubmit();
               }
             }}
-            className="max-h-32 min-h-11 flex-1 resize-none rounded-lg border border-white/10 bg-[#071a0d] px-4 py-3 text-sm outline-none transition placeholder:text-slate-500 focus:border-green-400"
+            className="max-h-24 min-h-9 flex-1 resize-none rounded-lg border border-white/10 bg-[#071a0d] px-2.5 py-2 text-xs outline-none transition placeholder:text-slate-500 focus:border-green-400 sm:min-h-11 sm:max-h-32 sm:px-4 sm:py-3 sm:text-sm"
             placeholder="Message"
           />
 
+          {/* Send button */}
           <button
             type="submit"
             disabled={sending || (!text.trim() && !image.trim())}
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-green-400 text-[#071a0d] transition hover:bg-green-300 disabled:cursor-not-allowed disabled:opacity-60"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-green-400 text-[#071a0d] transition hover:bg-green-300 disabled:cursor-not-allowed disabled:opacity-60 sm:h-11 sm:w-11"
             title="Send"
           >
-            <FiSend />
+            <FiSend className="text-base sm:text-lg" />
           </button>
         </div>
       </form>

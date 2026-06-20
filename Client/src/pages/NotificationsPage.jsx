@@ -159,24 +159,25 @@ const NotificationsPage = () => {
   };
 
   return (
-    <main className="page-shell page-shell--notifications min-h-dvh bg-[#071a0d] p-3 text-green-50 sm:p-4">
-      <div className="mx-auto max-w-5xl">
-        <header className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-green-500/20 bg-[#0b2412]/95 p-4 shadow-2xl shadow-black/25 backdrop-blur-xl">
-          <div className="flex items-center gap-3">
+    <main className="page-shell page-shell--notifications min-h-dvh bg-[#071a0d] p-2 text-green-50 sm:p-3 md:p-4 lg:p-5">
+      <div className="mx-auto w-full max-w-2xl sm:max-w-3xl md:max-w-4xl lg:max-w-5xl">
+        {/* HEADER - Responsive */}
+        <header className="mb-4 flex flex-col gap-3 rounded-xl border border-green-500/20 bg-[#0b2412]/95 p-3 shadow-2xl shadow-black/25 backdrop-blur-xl sm:rounded-2xl sm:mb-5 sm:p-4 md:flex-row md:items-center md:justify-between md:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
             <button
               type="button"
               onClick={() => navigate("/")}
-              className="grid h-10 w-10 place-items-center rounded-lg text-green-200 transition hover:bg-green-500/10"
+              className="grid h-9 w-9 place-items-center rounded-lg text-green-200 transition hover:bg-green-500/10 sm:h-10 sm:w-10"
               title="Back to chats"
             >
-              <FiArrowLeft />
+              <FiArrowLeft className="text-base sm:text-lg" />
             </button>
-            <div className="grid h-11 w-11 place-items-center rounded-lg bg-green-500 text-[#071a0d]">
+            <div className="grid h-10 w-10 place-items-center rounded-lg bg-green-500 text-lg text-[#071a0d] sm:h-11 sm:w-11 sm:text-xl">
               <FiBell />
             </div>
             <div>
-              <h1 className="text-2xl font-semibold">Notifications</h1>
-              <p className="text-sm text-green-200/70">
+              <h1 className="text-lg font-semibold sm:text-2xl">Notifications</h1>
+              <p className="text-xs text-green-200/70 sm:text-sm">
                 {unreadCount} unread notification{unreadCount === 1 ? "" : "s"}
               </p>
             </div>
@@ -186,26 +187,29 @@ const NotificationsPage = () => {
             type="button"
             onClick={markAllRead}
             disabled={!unreadCount || actionId === "all"}
-            className="flex items-center gap-2 rounded-lg bg-green-500 px-4 py-2 text-sm font-semibold text-[#071a0d] transition hover:bg-green-400 disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-green-500 px-3 py-2 text-xs font-semibold text-[#071a0d] transition hover:bg-green-400 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-4 sm:text-sm"
           >
-            <FiCheckCircle />
-            Mark all read
+            <FiCheckCircle className="text-base sm:text-lg" />
+            <span className="hidden sm:inline">Mark all read</span>
+            <span className="sm:hidden">Mark read</span>
           </button>
         </header>
 
+        {/* ERROR MESSAGE */}
         {error && (
-          <div className="mb-4 rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">
+          <div className="mb-3 rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2 text-xs text-red-100 sm:mb-4 sm:px-4 sm:py-3 sm:text-sm">
             {error}
           </div>
         )}
 
-        <div className="mb-4 inline-flex rounded-lg border border-green-500/20 bg-[#0b2412] p-1">
+        {/* TABS - Responsive */}
+        <div className="mb-3 inline-flex rounded-lg border border-green-500/20 bg-[#0b2412] p-1 sm:mb-4">
           {["unread", "all"].map((tab) => (
             <button
               key={tab}
               type="button"
               onClick={() => setActiveTab(tab)}
-              className={`rounded-md px-4 py-2 text-sm font-medium capitalize transition ${
+              className={`rounded-md px-3 py-1.5 text-xs font-medium capitalize transition sm:px-4 sm:py-2 sm:text-sm ${
                 activeTab === tab
                   ? "bg-green-500 text-[#071a0d]"
                   : "text-green-200 hover:bg-green-500/10"
@@ -216,17 +220,18 @@ const NotificationsPage = () => {
           ))}
         </div>
 
-        <section className="overflow-hidden rounded-2xl border border-green-500/20 bg-[#0b2412]/95 backdrop-blur-xl">
+        {/* NOTIFICATIONS LIST - Responsive */}
+        <section className="overflow-hidden rounded-xl border border-green-500/20 bg-[#0b2412]/95 backdrop-blur-xl sm:rounded-2xl">
           {loading ? (
-            <div className="grid min-h-64 place-items-center">
-              <div className="h-10 w-10 rounded-full border-2 border-green-400/25 border-t-green-400 animate-spin" />
+            <div className="grid min-h-48 place-items-center sm:min-h-64">
+              <div className="h-8 w-8 rounded-full border-2 border-green-400/25 border-t-green-400 animate-spin sm:h-10 sm:w-10" />
             </div>
           ) : (
             <div className="divide-y divide-green-500/10">
               {visibleNotifications.map((notification) => (
                 <article
                   key={notification._id}
-                  className={`flex flex-col gap-3 p-4 md:flex-row md:items-center ${
+                  className={`flex flex-col gap-2 p-3 sm:gap-3 sm:p-4 md:flex-row md:items-center md:gap-4 ${
                     notification.isRead ? "bg-transparent" : "bg-green-500/5"
                   }`}
                 >
@@ -234,59 +239,60 @@ const NotificationsPage = () => {
 
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-medium text-green-50">
+                      <p className="text-sm font-medium text-green-50 sm:text-base">
                         {notification.sender?.fullName || "QuickChat"}
                       </p>
                       {!notification.isRead && (
-                        <span className="rounded-full bg-lime-300/15 px-2 py-0.5 text-xs text-lime-200">
+                        <span className="rounded-full bg-lime-300/15 px-1.5 py-0.5 text-xs text-lime-200">
                           Unread
                         </span>
                       )}
                     </div>
-                    <p className="mt-1 text-sm leading-6 text-green-100/80">
+                    <p className="mt-0.5 text-xs leading-5 text-green-100/80 sm:mt-1 sm:text-sm sm:leading-6">
                       {notification.content || "You have a new notification."}
                     </p>
-                    <p className="mt-1 text-xs text-green-200/50">
+                    <p className="mt-0.5 text-xs text-green-200/50 sm:mt-1">
                       {formatNotificationTime(notification.createdAt)}
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  {/* ACTIONS - Responsive button group */}
+                  <div className="flex items-center gap-1.5 sm:gap-2">
                     <button
                       type="button"
                       onClick={() => openChat(notification)}
                       disabled={actionId === notification._id}
-                      className="grid h-10 w-10 place-items-center rounded-lg bg-green-500 text-[#071a0d] transition hover:bg-green-400 disabled:opacity-60"
+                      className="grid h-9 w-9 place-items-center rounded-lg bg-green-500 text-[#071a0d] transition hover:bg-green-400 disabled:opacity-60 sm:h-10 sm:w-10"
                       title="Open chat"
                     >
-                      <FiMessageCircle />
+                      <FiMessageCircle className="text-base sm:text-lg" />
                     </button>
                     {!notification.isRead && (
                       <button
                         type="button"
                         onClick={() => markRead(notification._id)}
                         disabled={actionId === notification._id}
-                        className="grid h-10 w-10 place-items-center rounded-lg border border-green-500/20 text-green-200 transition hover:bg-green-500/10 disabled:opacity-60"
+                        className="grid h-9 w-9 place-items-center rounded-lg border border-green-500/20 text-green-200 transition hover:bg-green-500/10 disabled:opacity-60 sm:h-10 sm:w-10"
                         title="Mark read"
                       >
-                        <FiCheckCircle />
+                        <FiCheckCircle className="text-base sm:text-lg" />
                       </button>
                     )}
                     <button
                       type="button"
                       onClick={() => deleteNotification(notification._id)}
                       disabled={actionId === notification._id}
-                      className="grid h-10 w-10 place-items-center rounded-lg border border-red-400/20 text-red-200 transition hover:bg-red-500/10 disabled:opacity-60"
+                      className="grid h-9 w-9 place-items-center rounded-lg border border-red-400/20 text-red-200 transition hover:bg-red-500/10 disabled:opacity-60 sm:h-10 sm:w-10"
                       title="Delete"
                     >
-                      <FiTrash2 />
+                      <FiTrash2 className="text-base sm:text-lg" />
                     </button>
                   </div>
                 </article>
               ))}
 
               {!visibleNotifications.length && (
-                <div className="grid min-h-64 place-items-center px-4 text-center text-sm text-green-200/60">
+                <div className="grid min-h-48 place-items-center px-3 text-center text-xs text-green-200/60 sm:min-h-64 sm:px-4 sm:text-sm">
                   No notifications here
                 </div>
               )}

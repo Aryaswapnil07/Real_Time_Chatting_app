@@ -1,4 +1,4 @@
-const configuredOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
+const configuredOrigins = (process.env.CORS_ORIGIN || "https://real-time-chatting-app-iota.vercel.app/login")
   .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);

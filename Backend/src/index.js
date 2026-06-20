@@ -9,27 +9,27 @@ import { app } from "./app.js";
 import http from "http";
 import { Server } from "socket.io";
 
+import { initSocket } from "./socket/socket.js";
+import socketHandler from "./socket/socketHandler.js";
+
 // Create HTTP Server
 const server = http.createServer(app);
 
-// Attach Socket.io
-export const io = new Server(server, {
+// Create Socket.io Server
+const io = new Server(server, {
   cors: {
     origin: process.env.CORS_ORIGIN,
     credentials: true,
   },
 });
 
-// Socket Connection
-io.on("connection", (socket) => {
-  console.log("🟢 User Connected :", socket.id);
+// Initialize Socket
+initSocket(io);
 
-  socket.on("disconnect", () => {
-    console.log("🔴 User Disconnected :", socket.id);
-  });
-});
+// Attach Socket Events
+socketHandler(io);
 
-// Connect Database and Start Server
+// Connect DB and Start Server
 connectDB()
   .then(() => {
     server.listen(process.env.PORT || 8000, () => {

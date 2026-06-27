@@ -81,6 +81,18 @@ const SideBar = ({
     };
   }, [query, searchUsers]);
 
+  const handleQueryChange = (event) => {
+    const nextQuery = event.target.value;
+
+    setQuery(nextQuery);
+
+    if (nextQuery.trim().length < 2) {
+      setSearchResults([]);
+      setSearchError("");
+      setSearching(false);
+    }
+  };
+
   const hasSearch = query.trim().length >= 2;
 
   return (
@@ -127,7 +139,7 @@ const SideBar = ({
           <FiSearch className="text-slate-400" />
           <input
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={handleQueryChange}
             className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-slate-500"
             placeholder="Search people"
           />

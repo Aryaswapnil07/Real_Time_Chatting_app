@@ -37,6 +37,8 @@ export class ApiRequestError extends Error {
 
 const buildUrl = (path) => `${API_BASE_URL}${path}`;
 
+let refreshPromise = null;
+
 const parseResponse = async (response) => {
   const contentType = response.headers.get("content-type") || "";
 
@@ -78,6 +80,21 @@ const refreshAccessToken = async () => {
   return payload.data;
 };
 
+const getFreshAccessToken = () => {
+  if (!refreshPromise) {
+    refreshPromise = refreshAccessToken()
+      .catch((error) => {
+        tokenStore.clear();
+        throw error;
+      })
+      .finally(() => {
+        refreshPromise = null;
+      });
+  }
+
+  return refreshPromise;
+};
+
 const createFetchOptions = ({ method, body, headers, auth }) => {
   const options = {
     method,
@@ -111,7 +128,7 @@ export const request = async (
   let response = await fetch(buildUrl(path), fetchOptions);
 
   if (response.status === 401 && auth && tokenStore.getRefreshToken()) {
-    await refreshAccessToken();
+    await getFreshAccessToken();
     response = await fetch(
       buildUrl(path),
       createFetchOptions({ method, body, headers, auth }),
@@ -121,6 +138,10 @@ export const request = async (
   const payload = await parseResponse(response);
 
   if (!response.ok || payload?.success === false) {
+    if (response.status === 401 && auth) {
+      tokenStore.clear();
+    }
+
     throw new ApiRequestError(
       payload?.message || "Something went wrong",
       response.status,

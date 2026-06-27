@@ -32,11 +32,16 @@ const ChatContainer = ({
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!text.trim() && !image.trim()) {
+    if (sending || (!text.trim() && !image.trim())) {
       return;
     }
 
-    await onSendMessage({ text, image });
+    const sent = await onSendMessage({ text, image });
+
+    if (!sent) {
+      return;
+    }
+
     setText("");
     setImage("");
     setShowImageInput(false);

@@ -1,17 +1,19 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiImage, FiSave } from "react-icons/fi";
 import UserAvatar from "../components/UserAvatar";
 import { useAuth } from "../context/useAuth";
 
+const getProfileForm = (user) => ({
+  fullName: user?.fullName || "",
+  email: user?.email || "",
+  bio: user?.bio || "",
+});
+
 const ProfilePage = () => {
   const navigate = useNavigate();
   const { user, updateProfile } = useAuth();
-  const [form, setForm] = useState({
-    fullName: user?.fullName || "",
-    email: user?.email || "",
-    bio: user?.bio || "",
-  });
+  const [form, setForm] = useState(() => getProfileForm(user));
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState("");
   const [saving, setSaving] = useState(false);
@@ -26,9 +28,26 @@ const ProfilePage = () => {
 
   const handleAvatarChange = (event) => {
     const file = event.target.files?.[0];
+
+    if (file && !file.type.startsWith("image/")) {
+      setError("Please choose a valid image file.");
+      setAvatarFile(null);
+      setAvatarPreview("");
+      event.target.value = "";
+      return;
+    }
+
     setAvatarFile(file || null);
     setAvatarPreview(file ? URL.createObjectURL(file) : "");
   };
+
+  useEffect(() => {
+    return () => {
+      if (avatarPreview) {
+        URL.revokeObjectURL(avatarPreview);
+      }
+    };
+  }, [avatarPreview]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -36,9 +55,16 @@ const ProfilePage = () => {
     setError("");
 
     try {
+      const fullName = form.fullName.trim();
+      const email = form.email.trim().toLowerCase();
+
+      if (!fullName || !email) {
+        throw new Error("Full name and email are required.");
+      }
+
       await updateProfile({
-        fullName: form.fullName.trim(),
-        email: form.email.trim().toLowerCase(),
+        fullName,
+        email,
         bio: form.bio.trim(),
         avatarFile,
       });

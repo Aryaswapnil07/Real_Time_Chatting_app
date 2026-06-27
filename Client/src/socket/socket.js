@@ -1,4 +1,5 @@
 import { io } from "socket.io-client";
+import { tokenStore } from "../api/http";
 
 const SOCKET_URL =
   import.meta.env.VITE_SOCKET_URL || "http://localhost:8000";
@@ -25,6 +26,8 @@ export const connectSocket = (userId) => {
   }
 
   activeUserId = userId;
+  const accessToken = tokenStore.getAccessToken();
+  socket.auth = accessToken ? { token: accessToken } : {};
 
   if (!socket.connected) {
     socket.connect();

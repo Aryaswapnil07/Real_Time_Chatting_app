@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import SideBar from "../components/SideBar";
 import ChatContainer from "../components/ChatContainer";
@@ -24,6 +24,7 @@ const HomePage = () => {
   const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [messagesConversationId, setMessagesConversationId] = useState(null);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [friends, setFriends] = useState([]);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
@@ -32,15 +33,54 @@ const HomePage = () => {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const conversationsRef = useRef(conversations);
+  const selectedConversationIdRef = useRef(null);
+  const messagesConversationIdRef = useRef(null);
+  const noticeTimerRef = useRef(null);
+  const sendingRef = useRef(false);
 
   const selectedPeer = useMemo(
     () => getConversationPeer(selectedConversation, user),
     [selectedConversation, user],
   );
 
+  const visibleMessages =
+    selectedConversation?._id === messagesConversationId ? messages : [];
+  const isLoadingSelectedMessages = Boolean(
+    selectedConversation?._id &&
+      (loadingMessages || messagesConversationId !== selectedConversation._id),
+  );
+
   const showNotice = useCallback((message) => {
+    if (noticeTimerRef.current) {
+      window.clearTimeout(noticeTimerRef.current);
+    }
+
     setNotice(message);
-    window.setTimeout(() => setNotice(""), 2500);
+    noticeTimerRef.current = window.setTimeout(() => {
+      setNotice("");
+      noticeTimerRef.current = null;
+    }, 2500);
+  }, []);
+
+  useEffect(() => {
+    conversationsRef.current = conversations;
+  }, [conversations]);
+
+  useEffect(() => {
+    selectedConversationIdRef.current = selectedConversation?._id || null;
+  }, [selectedConversation?._id]);
+
+  useEffect(() => {
+    messagesConversationIdRef.current = messagesConversationId;
+  }, [messagesConversationId]);
+
+  useEffect(() => {
+    return () => {
+      if (noticeTimerRef.current) {
+        window.clearTimeout(noticeTimerRef.current);
+      }
+    };
   }, []);
 
   const loadWorkspace = useCallback(async () => {
@@ -138,19 +178,24 @@ const HomePage = () => {
     }
 
     let ignore = false;
+    const conversationId = selectedConversation._id;
+
     const timer = window.setTimeout(() => {
       setLoadingMessages(true);
       setError("");
 
       messagesApi
-        .getByConversation(selectedConversation._id)
+        .getByConversation(conversationId)
         .then((conversationMessages) => {
           if (!ignore) {
             setMessages(conversationMessages);
+            setMessagesConversationId(conversationId);
           }
         })
         .catch((err) => {
           if (!ignore) {
+            setMessages([]);
+            setMessagesConversationId(conversationId);
             setError(err.message || "Unable to load messages");
           }
         })
@@ -199,8 +244,9 @@ const HomePage = () => {
 
   useEffect(() => {
     const handleNewMessage = (message) => {
-      const conversationFound = conversations.some(
-        (conversation) => conversation._id === getId(message.conversation),
+      const conversationId = getId(message.conversation);
+      const conversationFound = conversationsRef.current.some(
+        (conversation) => conversation._id === conversationId,
       );
 
       updateConversationLastMessage(message);
@@ -209,14 +255,53 @@ const HomePage = () => {
         loadWorkspace();
       }
 
-      if (messageBelongsToConversation(message, selectedConversation?._id)) {
-        setMessages((current) => mergeById(current, message));
+      if (
+        messageBelongsToConversation(
+          message,
+          selectedConversationIdRef.current,
+        )
+      ) {
+        const selectedId = selectedConversationIdRef.current;
+
+        setMessages((current) =>
+          messagesConversationIdRef.current === selectedId
+            ? mergeById(current, message)
+            : [message],
+        );
+        setMessagesConversationId(selectedId);
       }
     };
 
-    const handleMessageDeleted = ({ messageId }) => {
+    const handleMessageDeleted = ({
+      messageId,
+      conversationId,
+      lastMessage,
+      lastMessageUpdated,
+      conversationUpdatedAt,
+    }) => {
       setMessages((current) =>
         current.filter((message) => message._id !== messageId),
+      );
+
+      if (!conversationId || !lastMessageUpdated) {
+        return;
+      }
+
+      const applyLastMessage = (conversation) => {
+        if (conversation._id !== conversationId) {
+          return conversation;
+        }
+
+        return {
+          ...conversation,
+          lastMessage: lastMessage || null,
+          updatedAt: conversationUpdatedAt || conversation.updatedAt,
+        };
+      };
+
+      setConversations((current) => current.map(applyLastMessage));
+      setSelectedConversation((current) =>
+        current ? applyLastMessage(current) : current,
       );
     };
 
@@ -229,27 +314,58 @@ const HomePage = () => {
 
           return {
             ...message,
-            seenBy: [...new Set([...(message.seenBy || []), seenBy])],
+            seenBy: [
+              ...new Set([...(message.seenBy || []).map(getId), getId(seenBy)]),
+            ],
           };
         }),
+      );
+    };
+
+    const handlePresenceChanged = ({ userId, isOnline, lastSeen }) => {
+      const applyPresence = (profile) => {
+        if (!profile || typeof profile !== "object" || getId(profile) !== userId) {
+          return profile;
+        }
+
+        return {
+          ...profile,
+          isOnline,
+          lastSeen,
+        };
+      };
+
+      const applyConversationPresence = (conversation) => ({
+        ...conversation,
+        participants: conversation.participants?.map(applyPresence),
+      });
+
+      setFriends((current) => current.map(applyPresence));
+      setPendingRequests((current) =>
+        current.map((request) => ({
+          ...request,
+          sender: applyPresence(request.sender),
+          receiver: applyPresence(request.receiver),
+        })),
+      );
+      setConversations((current) => current.map(applyConversationPresence));
+      setSelectedConversation((current) =>
+        current ? applyConversationPresence(current) : current,
       );
     };
 
     socket.on("newMessage", handleNewMessage);
     socket.on("messageDeleted", handleMessageDeleted);
     socket.on("messageSeen", handleMessageSeen);
+    socket.on("userPresenceChanged", handlePresenceChanged);
 
     return () => {
       socket.off("newMessage", handleNewMessage);
       socket.off("messageDeleted", handleMessageDeleted);
       socket.off("messageSeen", handleMessageSeen);
+      socket.off("userPresenceChanged", handlePresenceChanged);
     };
-  }, [
-    conversations,
-    loadWorkspace,
-    selectedConversation?._id,
-    updateConversationLastMessage,
-  ]);
+  }, [loadWorkspace, updateConversationLastMessage]);
 
   const handleStartConversation = async (participantId) => {
     setError("");
@@ -321,25 +437,41 @@ const HomePage = () => {
   };
 
   const handleSendMessage = async ({ text, image }) => {
-    if (!selectedConversation?._id || (!text?.trim() && !image?.trim())) {
-      return;
+    const trimmedText = text?.trim() || "";
+    const trimmedImage = image?.trim() || "";
+
+    if (
+      !selectedConversation?._id ||
+      (!trimmedText && !trimmedImage) ||
+      sendingRef.current
+    ) {
+      return false;
     }
 
+    sendingRef.current = true;
     setSending(true);
     setError("");
 
     try {
       const sentMessage = await messagesApi.send({
         conversationId: selectedConversation._id,
-        text: text.trim(),
-        image: image.trim(),
+        text: trimmedText,
+        image: trimmedImage,
       });
 
-      setMessages((current) => mergeById(current, sentMessage));
+      setMessages((current) =>
+        messagesConversationIdRef.current === selectedConversation._id
+          ? mergeById(current, sentMessage)
+          : [sentMessage],
+      );
+      setMessagesConversationId(selectedConversation._id);
       updateConversationLastMessage(sentMessage);
+      return true;
     } catch (err) {
       setError(err.message || "Unable to send message");
+      return false;
     } finally {
+      sendingRef.current = false;
       setSending(false);
     }
   };
@@ -392,8 +524,8 @@ const HomePage = () => {
           currentUser={user}
           selectedConversation={selectedConversation}
           selectedPeer={selectedPeer}
-          messages={messages}
-          loading={loadingMessages}
+          messages={visibleMessages}
+          loading={isLoadingSelectedMessages}
           sending={sending}
           onBack={() => setSelectedConversation(null)}
           onSendMessage={handleSendMessage}
@@ -407,7 +539,7 @@ const HomePage = () => {
             selectedConversation={selectedConversation}
             selectedPeer={selectedPeer}
             friends={friends}
-            messages={messages}
+            messages={visibleMessages}
             onRemoveFriend={handleRemoveFriend}
             onLogout={logout}
           />

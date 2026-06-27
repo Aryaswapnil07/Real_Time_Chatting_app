@@ -64,10 +64,11 @@
   .card {
     padding: 1.5rem;
     border-radius: 1.125rem;
-    hover: {
-      transform: translateY(-4px);
-      border-color: rgba(74, 222, 128, 0.5);
-    }
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(74, 222, 128, 0.5);
   }
 }
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BsChatDotsFill } from "react-icons/bs";
 import { FiImage, FiLogIn, FiUserPlus } from "react-icons/fi";
@@ -33,9 +33,26 @@ const LoginPage = () => {
 
   const handleAvatarChange = (event) => {
     const file = event.target.files?.[0];
+
+    if (file && !file.type.startsWith("image/")) {
+      setError("Please choose a valid image file.");
+      setAvatarFile(null);
+      setAvatarPreview("");
+      event.target.value = "";
+      return;
+    }
+
     setAvatarFile(file || null);
     setAvatarPreview(file ? URL.createObjectURL(file) : "");
   };
+
+  useEffect(() => {
+    return () => {
+      if (avatarPreview) {
+        URL.revokeObjectURL(avatarPreview);
+      }
+    };
+  }, [avatarPreview]);
 
   const resetForm = () => {
     setForm(initialForm);
@@ -55,7 +72,7 @@ const LoginPage = () => {
 
     if (identifier.includes("@")) {
       return {
-        email: identifier,
+        email: identifier.toLowerCase(),
         password: form.password,
       };
     }

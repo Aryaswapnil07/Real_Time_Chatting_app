@@ -6,8 +6,8 @@ import {
 } from "react";
 import { usersApi } from "../api/users";
 import { tokenStore } from "../api/http";
-import { connectSocket, disconnectSocket } from "../socket/socket";
-import { AuthContext } from "./authContextValue";
+import { connectSocket, disconnectSocket } from "../socket/socket.js";
+import { AuthContext } from "./authContextValue.js";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -15,6 +15,7 @@ export const AuthProvider = ({ children }) => {
 
   const loadCurrentUser = useCallback(async () => {
     if (!tokenStore.getAccessToken()) {
+      setUser(null);
       setLoading(false);
       return;
     }
@@ -43,7 +44,13 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (user?._id) {
       connectSocket(user._id);
+      return () => {
+        disconnectSocket();
+      };
     }
+
+    disconnectSocket();
+    return undefined;
   }, [user?._id]);
 
   const login = useCallback(async (credentials) => {
@@ -69,19 +76,24 @@ export const AuthProvider = ({ children }) => {
 
   const updateProfile = useCallback(
     async ({ fullName, email, bio, avatarFile }) => {
+      if (!user?._id) {
+        throw new Error("You must be logged in to update your profile.");
+      }
+
       let updatedUser = user;
 
       if (fullName && email) {
         updatedUser = await usersApi.updateAccount({ fullName, email, bio });
+        setUser(updatedUser);
       }
 
       if (avatarFile) {
         const formData = new FormData();
         formData.append("avatar", avatarFile);
         updatedUser = await usersApi.updateAvatar(formData);
+        setUser(updatedUser);
       }
 
-      setUser(updatedUser);
       return updatedUser;
     },
     [user],

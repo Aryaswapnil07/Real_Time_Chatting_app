@@ -7,6 +7,8 @@ import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 // after commit
 
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const getCookieOptions = () => ({
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
@@ -36,15 +38,20 @@ const registerUser = asyncHandler(async (req, res) => {
   //get user detail from frontend
 
   const { fullName, email, username, password, bio } = req.body;
+  const normalizedFullName = fullName?.trim();
+  const normalizedEmail = email?.trim().toLowerCase();
+  const normalizedUsername = username?.trim().toLowerCase();
 
   if (
-    [fullName, email, username, password].some((field) => field?.trim() === "")
+    [normalizedFullName, normalizedEmail, normalizedUsername, password].some(
+      (field) => !field?.trim()
+    )
   ) {
     throw new ApiError(400, "All fields are required !");
   }
 
   const existedUser = await User.findOne({
-    $or: [{ username }, { email }],
+    $or: [{ username: normalizedUsername }, { email: normalizedEmail }],
   });
 
   if (existedUser) {
@@ -68,12 +75,12 @@ const registerUser = asyncHandler(async (req, res) => {
   //create user object -create entry in db
 
   const user = await User.create({
-    fullName,
+    fullName: normalizedFullName,
     avatar: avatar.url,
-    email,
+    email: normalizedEmail,
     password,
-    username: username.trim().toLowerCase(),
-    bio,
+    username: normalizedUsername,
+    bio: bio?.trim() || "",
   });
 
   const createdUser = await User.findById(user._id).select(
@@ -85,20 +92,27 @@ const registerUser = asyncHandler(async (req, res) => {
   }
   return res
     .status(201)
-    .json(new ApiResponse(200, createdUser, "User registered Succesfully "));
+    .json(new ApiResponse(201, createdUser, "User registered Succesfully "));
 });
 
 //user registration and all scenario end here
 
 const loginUser = asyncHandler(async (req, res) => {
   const { email, username, password } = req.body;
+  const normalizedEmail = email?.trim().toLowerCase();
+  const normalizedUsername = username?.trim().toLowerCase();
   // console.log(email)
-  if (!username && !email) {
+  if ((!normalizedUsername && !normalizedEmail) || !password) {
     throw new ApiError(400, "Username or email is required ");
   }
 
+  const lookup = [
+    normalizedUsername ? { username: normalizedUsername } : null,
+    normalizedEmail ? { email: normalizedEmail } : null,
+  ].filter(Boolean);
+
   const user = await User.findOne({
-    $or: [{ username }, { email }],
+    $or: lookup,
   });
 
   //database check hone ke baad ka code
@@ -242,21 +256,34 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
   const { fullName, email, bio } = req.body;
+  const normalizedFullName = fullName?.trim();
+  const normalizedEmail = email?.trim().toLowerCase();
 
-  if (!fullName || !email) {
+  if (!normalizedFullName || !normalizedEmail) {
     throw new ApiError(400, "All fields are required ");
+  }
+
+  const emailOwner = await User.findOne({
+    _id: {
+      $ne: req.user?._id,
+    },
+    email: normalizedEmail,
+  });
+
+  if (emailOwner) {
+    throw new ApiError(409, "Email is already in use");
   }
 
   const user = await User.findByIdAndUpdate(
     req.user?._id,
     {
       $set: {
-        fullName,
-        email: email,
-        bio,
+        fullName: normalizedFullName,
+        email: normalizedEmail,
+        bio: bio?.trim() || "",
       },
     },
-    { new: true }
+    { new: true, runValidators: true }
   ).select("-password -refreshToken");
 
   return res
@@ -284,8 +311,8 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
         avatar: avatar.url,
       },
     },
-    { new: true }
-  ).select("-password , -refreshToken   ");
+    { new: true, runValidators: true }
+  ).select("-password -refreshToken");
 
   return res
     .status(200)
@@ -295,10 +322,13 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 
 const searchUsers = asyncHandler(async (req, res) => {
   const { query } = req.query;
+  const searchTerm = query?.trim();
 
-  if (!query?.trim()) {
+  if (!searchTerm) {
     throw new ApiError(400, "Search query is required");
   }
+
+  const safeQuery = escapeRegex(searchTerm);
 
   const users = await User.find({
     $and: [
@@ -306,13 +336,13 @@ const searchUsers = asyncHandler(async (req, res) => {
         $or: [
           {
             username: {
-              $regex: query,
+              $regex: safeQuery,
               $options: "i",
             },
           },
           {
             fullName: {
-              $regex: query,
+              $regex: safeQuery,
               $options: "i",
             },
           },
@@ -336,6 +366,10 @@ const getUserProfile = asyncHandler(async (req, res) => {
 
   if (!userId) {
     throw new ApiError(400, "User id is required");
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    throw new ApiError(400, "Invalid user id");
   }
 
   const user = await User.findById(userId).select("-password -refreshToken");

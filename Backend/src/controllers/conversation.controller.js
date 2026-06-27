@@ -83,6 +83,9 @@ const getMyConversations = asyncHandler(async (req, res) => {
     )
     .populate({
       path: "lastMessage",
+      match: {
+        isDeleted: false,
+      },
       populate: {
         path: "sender",
         select: "fullName avatar",
@@ -125,6 +128,9 @@ const getConversationById = asyncHandler(async (req, res) => {
       )
       .populate({
         path: "lastMessage",
+        match: {
+          isDeleted: false,
+        },
         populate: {
           path: "sender",
           select: "fullName avatar",
